@@ -1,0 +1,290 @@
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#define TRUE 1
+#define FALSE 0
+
+int red, green, blue, yellow;
+unsigned long foreground, background;
+
+//*************************************************************************************************************************
+// Funkcja przydzielania kolorów
+int AllocNamedColor(char name, Display display, Colormap colormap)
+{
+    XColor col;
+    XParseColor(display, colormap, name, &col);
+    XAllocColor(display, colormap, &col);
+    return col.pixel;
+}
+
+//*************************************************************************************************************************
+// Inicjalizacja zmiennych globalnych określających kolory
+int init_colors(Display* display, int screen_no, Colormap colormap)
+{
+    background = WhitePixel(display, screen_no);  // Tło białe
+    foreground = BlackPixel(display, screen_no);  // Ekran czarny
+    red = AllocNamedColor("red", display, colormap);
+    green = AllocNamedColor("green", display, colormap);
+    blue = AllocNamedColor("blue", display, colormap);
+    yellow = AllocNamedColor("yellow", display, colormap);
+}
+
+void draw_char(Display* display, Window window, GC gc, XPoint *srodek_wsp, XPoint *zew_wsp, XSegment *srodekS, XSegment *zewS, int radius2) {
+
+                  srodekS[0].x1=srodek_wsp[0].x;
+                  srodekS[0].y1=srodek_wsp[0].y;
+                  srodekS[0].x2=srodek_wsp[1].x;
+                  srodekS[0].y2=srodek_wsp[1].y;
+
+                  srodekS[1].x1=srodek_wsp[1].x;
+                  srodekS[1].y1=srodek_wsp[1].y;
+                  srodekS[1].x2=srodek_wsp[0].x;
+                  srodekS[1].y2=srodek_wsp[0].y;
+
+
+                  zewS[0].x1=zew_wsp[0].x;
+                  zewS[0].y1=zew_wsp[0].y;
+                  zewS[0].x2=zew_wsp[1].x;
+                  zewS[0].y2=zew_wsp[1].y;
+
+                  zewS[1].x1=zew_wsp[1].x;
+                  zewS[1].y1=zew_wsp[1].y;
+                  zewS[1].x2=zew_wsp[2].x;
+                  zewS[1].y2=zew_wsp[2].y;
+
+                  zewS[2].x1=zew_wsp[2].x;
+                  zewS[2].y1=zew_wsp[2].y;
+                  zewS[2].x2=zew_wsp[3].x;
+                  zewS[2].y2=zew_wsp[3].y;
+
+                  zewS[3].x1=zew_wsp[3].x;
+                  zewS[3].y1=zew_wsp[3].y;
+                  zewS[3].x2=zew_wsp[4].x;
+                  zewS[3].y2=zew_wsp[4].y;
+
+                  zewS[4].x1=zew_wsp[4].x;
+                  zewS[4].y1=zew_wsp[4].y;
+                  zewS[4].x2=zew_wsp[5].x;
+                  zewS[4].y2=zew_wsp[5].y;
+
+                  zewS[5].x1=zew_wsp[5].x;
+                  zewS[5].y1=zew_wsp[5].y;
+                  zewS[5].x2=zew_wsp[6].x;
+                  zewS[5].y2=zew_wsp[6].y;
+
+                  zewS[6].x1=zew_wsp[6].x;
+                  zewS[6].y1=zew_wsp[6].y;
+                  zewS[6].x2=zew_wsp[7].x;
+                  zewS[6].y2=zew_wsp[7].y;
+
+                  zewS[7].x1=zew_wsp[7].x;
+                  zewS[7].y1=zew_wsp[7].y;
+                  zewS[7].x2=zew_wsp[8].x;
+                  zewS[7].y2=zew_wsp[8].y;
+
+                  zewS[8].x1=zew_wsp[8].x;
+                  zewS[8].y1=zew_wsp[8].y;
+                  zewS[8].x2=zew_wsp[9].x;
+                  zewS[8].y2=zew_wsp[9].y;
+
+                  zewS[9].x1=zew_wsp[9].x;
+                  zewS[9].y1=zew_wsp[9].y;
+                  zewS[9].x2=zew_wsp[0].x;
+                  zewS[9].y2=zew_wsp[0].y;
+
+                  XSetForeground(display, gc, red);
+
+                  for (int i = 0; i < 3; i++) {
+                  int radius = 5; // Promień okręgu
+
+
+                  XDrawSegments(display, window, gc, srodekS, 3);
+                  XDrawSegments(display, window, gc, zewS, 10);
+
+                  XFillArc(display, window, gc, srodek_wsp[i].x - radius, srodek_wsp[i].y - radius, 2 * radius, 2 * radius, 0, 360 * 64);
+                  }
+
+                  for (int i=0; i<11;i++) {
+                    int radius = 5;
+                    XFillArc(display, window, gc, zew_wsp[i].x - radius, zew_wsp[i].y - radius, 2 * radius, 2 * radius, 0, 360 * 64);
+                  }
+
+                  XDrawArc(display, window, gc, srodek_wsp[0].x-radius2, srodek_wsp[0].y, 2*radius2, srodek_wsp[1].y-srodek_wsp[0].y, 64*270, 64*180);
+
+
+
+}
+
+//*************************************************************************************************************************
+// Główna funkcja zawierająca pętlę obsługującą zdarzenia
+int main(int argc, char *argv[])
+{
+    char icon_name[] = "Grafika";
+    char title[] = "Grafika komputerowa";
+    Display* display;
+    Window window;
+    GC gc;
+    XEvent event;
+    KeySym key;
+    Colormap colormap;
+    int screen_no;
+    XSizeHints info;
+    char buffer[8];
+    int hm_keys;
+    int to_end;
+
+    int radius2 = 50;
+
+    display = XOpenDisplay("");
+    screen_no = DefaultScreen(display);
+    colormap = XDefaultColormap(display, screen_no);
+    init_colors(display, screen_no, colormap);
+
+    info.x = 100;
+    info.y = 150;
+    info.width = 800;
+    info.height = 800;
+    info.flags = PPosition | PSize;
+
+    window = XCreateSimpleWindow(display, DefaultRootWindow(display), info.x, info.y, info.width, info.height, 7, foreground, background);
+    XSetStandardProperties(display, window, title, icon_name, None, argv, argc, &info);
+    gc = XCreateGC(display, window, 0, 0);
+    XSetBackground(display, gc, background);
+    XSetForeground(display, gc, foreground);
+
+    XSelectInput(display, window, (KeyPressMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | Button1MotionMask));
+    XMapRaised(display, window);
+    XPoint srodek[4];
+    XPoint srodek_wsp[3];
+    XPoint zew[11];
+    XPoint zew_wsp[10];
+
+    XSegment srodekS[3];
+    XSegment zewS[10];
+
+    int rememberI=0;
+    int isItSrodek=2;
+    to_end = FALSE;
+
+    while (to_end == FALSE)
+    {
+        XNextEvent(display, &event);
+
+        switch (event.type)
+        {
+            case Expose:
+                if (event.xexpose.count == 0)
+                {
+                  XSetForeground(display, gc, red);
+
+                  srodek_wsp[0].x=250;
+                  srodek_wsp[0].y=300;
+                  srodek_wsp[1].x=250;
+                  srodek_wsp[1].y=380;
+
+                  zew_wsp[0].x=200;
+                  zew_wsp[0].y=250;
+                  zew_wsp[1].x=300;
+                  zew_wsp[1].y=250;
+                  zew_wsp[2].x=350;
+                  zew_wsp[2].y=320;
+                  zew_wsp[3].x=350;
+                  zew_wsp[3].y=370;
+                  zew_wsp[4].x=300;
+                  zew_wsp[4].y=420;
+                  zew_wsp[5].x=370;
+                  zew_wsp[5].y=520;
+                  zew_wsp[6].x=320;
+                  zew_wsp[6].y=520;
+                  zew_wsp[7].x=250;
+                  zew_wsp[7].y=420;
+                  zew_wsp[8].x=250;
+                  zew_wsp[8].y=520;
+                  zew_wsp[9].x=200;
+                  zew_wsp[9].y=520;
+
+                  draw_char(display, window, gc, srodek_wsp, zew_wsp, srodekS, zewS, radius2);
+
+                  XFillRectangle(display, window, gc, 400, 250, 200, 50);
+                  XFillRectangle(display, window, gc, 400, 300, 50, 200);
+                  XFillRectangle(display, window, gc, 450, 450, 150, 50);
+                  XFillRectangle(display, window, gc, 550, 355, 50, 120);
+                  XFillRectangle(display, window, gc, 500, 355, 50, 50);
+
+
+
+                }
+                break;
+
+            case MappingNotify:
+                XRefreshKeyboardMapping(&event.xmapping);
+                break;
+
+            case ButtonPress:
+                if (event.xbutton.button == Button1)
+                {
+                    // Obsługa kliknięcia lewym przyciskiem myszy
+
+                  int x = event.xbutton.x;
+                  int y = event.xbutton.y;
+                  for (int i=0;i<2;i++) {
+                    if (x>srodek_wsp[i].x-5 && x<srodek_wsp[i].x+5 && y>srodek_wsp[i].y-5 && y<srodek_wsp[i].y+5) {
+                      rememberI=i;
+                      isItSrodek=1;
+                    }
+                  }
+                  for (int j=0;j<11;j++) {
+                    if (x>zew_wsp[j].x-5 && x<zew_wsp[j].x+5 && y>zew_wsp[j].y-5 && y<zew_wsp[j].y+5) {
+                      rememberI=j;
+                      isItSrodek=0;
+                    }
+                  }
+
+                }
+                else if (event.xbutton.button == Button3) {
+                  // obsługa prawego przycisku myszy
+                  int x = event.xbutton.x;
+                  int y = event.xbutton.y;
+
+                  if (isItSrodek == 1) {
+                    srodek_wsp[rememberI].x=x;
+                    srodek_wsp[rememberI].y=y;
+                    XClearWindow(display, window);
+                    draw_char(display, window, gc, srodek_wsp, zew_wsp, srodekS, zewS, radius2);
+                  }
+                  else if (isItSrodek == 0) {
+                    zew_wsp[rememberI].x=x;
+                    zew_wsp[rememberI].y=y;
+                    XClearWindow(display, window);
+                    draw_char(display, window, gc, srodek_wsp, zew_wsp, srodekS, zewS, radius2);
+                  }
+
+
+
+                  isItSrodek=2;
+                  rememberI=0;
+                }
+                break;
+
+            case KeyPress:
+                hm_keys = XLookupString(&event.xkey, buffer, 8, &key, 0);
+                if (hm_keys == 1)
+                {
+                    if (buffer[0] == 'q') to_end = TRUE;  // Koniec programu po naciśnięciu klawisza 'q'
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    XFreeGC(display, gc);
+    XDestroyWindow(display, window);
+    XCloseDisplay(display);
+
+    return 0;
+}
