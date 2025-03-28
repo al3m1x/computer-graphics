@@ -1,0 +1,13 @@
+﻿  grafika6.cpp
+D:\grafika6\grafika6.cpp(462,22): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\grafika6\grafika6.cpp(463,22): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\grafika6\grafika6.cpp(370): warning C4715: 'in_wall': not all control paths return a value
+  grafika6.vcxproj -> D:\grafika6\Debug\grafika6.exe
